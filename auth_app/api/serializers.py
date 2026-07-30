@@ -44,3 +44,24 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Password do not match")
         else:
             return values
+
+
+class LoginSerializer(serializers.Serializer):
+
+    username = serializers.CharField(max_length=100)
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, values):
+        new_username = values["username"]
+        user = User.objects.filter(username=new_username).first()
+
+        if user:
+            pw_valid = user.check_password(values["password"])
+
+            if pw_valid:
+                values["user"] = user
+                return values
+            else:
+                raise serializers.ValidationError("Invalid Credentials")
+        else:
+            raise serializers.ValidationError("Invalid Credentials")

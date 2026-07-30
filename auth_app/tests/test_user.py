@@ -82,3 +82,81 @@ class RegistrationTests(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertEqual(User.objects.count(), 0)
+
+
+class LoginTests(APITestCase):
+
+    def setUp(self):
+        self.url = reverse('login')
+        self.password = 'SicheresPW123'
+        self.user = User.objects.create_user(
+            username='testuser',
+            email='test@mail.de',
+            password=self.password,
+        )
+        self.data = {
+            'username': 'testuser',
+            'password': self.password,
+        }
+
+    def test_login_returns_token_and_user_data(self):
+        response = self.client.post(self.url, self.data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], 'testuser')
+        self.assertEqual(response.data['email'], 'test@mail.de')
+        self.assertEqual(response.data['user_id'], self.user.pk)
+        self.assertEqual(response.data['token'], Token.objects.get(user=self.user).key)
+
+    def test_login_reuses_existing_token(self):
+        existing = Token.objects.create(user=self.user)
+        response = self.client.post(self.url, self.data, format='json')
+
+        self.assertEqual(response.data['token'], existing.key)
+        self.assertEqual(Token.objects.filter(user=self.user).count(), 1)
+
+    def test_login_twice_returns_same_token(self):
+        first = self.client.post(self.url, self.data, format='json')
+        second = self.client.post(self.url, self.data, format='json')
+
+        self.assertEqual(first.data['token'], second.data['token'])
+
+    def test_password_not_returned(self):
+        response = self.client.post(self.url, self.data, format='json')
+
+        self.assertNotIn('password', response.data)
+
+    def test_login_with_wrong_password(self):
+        data = {**self.data, 'password': 'FalschesPW123'}
+        response = self.client.post(self.url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertFalse(Token.objects.filter(user=self.user).exists())
+
+    def test_login_with_unknown_username(self):
+        data = {**self.data, 'username': 'gibtesnicht'}
+        response = self.client.post(self.url, data, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_error_message_does_not_reveal_which_field_was_wrong(self):
+        wrong_password = self.client.post(
+            self.url, {**self.data, 'password': 'FalschesPW123'}, format='json'
+        )
+        wrong_username = self.client.post(
+            self.url, {**self.data, 'username': 'gibtesnicht'}, format='json'
+        )
+
+        self.assertEqual(wrong_password.data, wrong_username.data)
+
+    def test_login_without_password(self):
+        response = self.client.post(self.url, {'username': 'testuser'}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('password', response.data)
+
+    def test_login_without_username(self):
+        response = self.client.post(self.url, {'password': self.password}, format='json')
+
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIn('username', response.data)
