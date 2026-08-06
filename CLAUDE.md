@@ -58,6 +58,15 @@ as I don't ask for it, the mentor rule applies.
 - **Extra context only on request.** If you notice a bigger topic behind my question, offer it
   in one sentence ("want to know why that is?") instead of writing it all out.
 
+## Commits
+
+- **Always Conventional Commits.** `type(scope): subject` — e.g. `feat(offers): add nested
+  detail creation`. Subject in imperative mood, lower case, no trailing period.
+- **My name only.** No `Co-Authored-By` trailer, no "Generated with …" line, no AI attribution
+  of any kind. The commit is authored by me alone.
+- **Always write a body, but keep it short.** One or two lines stating what changed and why —
+  never omit it. No bullet lists, no summaries of the diff.
+
 ## Project context
 
 Django + Django REST Framework with token auth. Windows, PowerShell, venv in `venv\`.
