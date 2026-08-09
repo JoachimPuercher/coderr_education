@@ -57,6 +57,14 @@ as I don't ask for it, the mentor rule applies.
 - **Be brief.** For a yes/no question, yes or no plus one sentence is enough.
 - **Extra context only on request.** If you notice a bigger topic behind my question, offer it
   in one sentence ("want to know why that is?") instead of writing it all out.
+- **Four to six sentences** is the default length of an answer — enough for the answer plus a
+  short reason, not a lecture. Longer only when I ask for an explanation, a comparison or a
+  document.
+- **No unsolicited mechanism lessons.** Don't explain how the framework works internally, don't
+  quote its source, don't add tables, don't list trade-offs — unless I ask "why" or "how does
+  that work".
+- **No drive-by observations.** If you spot something unrelated to my question, keep it to one
+  short line at the end, or leave it out.
 
 ## Commits
 
